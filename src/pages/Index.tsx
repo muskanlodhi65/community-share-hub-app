@@ -15,7 +15,7 @@ import {
   Wrench, Sprout, Tv, Tent, Utensils, BookOpen, Hammer, Sparkles,
   CheckCircle2, HelpCircle, HeartHandshake, Star, Globe, TrendingUp,
   Dumbbell, ChevronDown, ChevronUp, Send, Mail, MessageSquare,
-  Zap, BadgeCheck, Coins, TreePine, LogIn,
+  Zap, BadgeCheck, Coins, TreePine, LogIn, Search,
   HandshakeIcon, RotateCcw, ThumbsUp, Camera
 } from 'lucide-react';
 
