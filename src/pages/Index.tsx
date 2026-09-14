@@ -458,18 +458,63 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Visual info cards */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Visual info cards with Real Uploaded Images */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { icon: '🏠', title: 'Hyperlocal', desc: 'Share within your neighbourhood, building, or campus.' },
-              { icon: '🤝', title: 'Trust-Based', desc: 'Verified profiles, ratings, and community reviews.' },
-              { icon: '💚', title: 'Eco-First', desc: 'Every share reduces manufacturing demand and waste.' },
-              { icon: '💰', title: 'Save & Earn', desc: 'Borrow for less. Earn from what you already own.' },
+              {
+                img: '/about/hyperlocal.png',
+                tag: 'Hyperlocal',
+                title: 'Nearby Community',
+                desc: 'Share within your neighbourhood, building, or city with real-time local availability.',
+                tagColor: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
+              },
+              {
+                img: '/about/trust.png',
+                tag: 'Trust & Safety',
+                title: 'Verified & Secure',
+                desc: 'ID-verified member profiles, trust ratings, and security deposit protection.',
+                tagColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+              },
+              {
+                img: '/about/eco.png',
+                tag: 'Eco-First',
+                title: 'Green Planet First',
+                desc: 'Every borrow reduces landfill waste, carbon footprints, and unnecessary over-production.',
+                tagColor: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300'
+              },
+              {
+                img: '/about/save.png',
+                tag: 'Save & Earn',
+                title: 'Save Time & Money',
+                desc: 'Borrow at a fraction of retail prices and earn passive money from items sitting idle in your house.',
+                tagColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+              },
             ].map((card, i) => (
-              <div key={i} className="p-5 rounded-2xl border bg-card hover:shadow-md transition-all hover:-translate-y-0.5 space-y-2">
-                <div className="text-3xl">{card.icon}</div>
-                <div className="font-bold">{card.title}</div>
-                <div className="text-xs text-muted-foreground leading-relaxed">{card.desc}</div>
+              <div
+                key={i}
+                className="p-4 sm:p-5 rounded-2xl border bg-card/95 hover:bg-card shadow-sm hover:shadow-xl hover:border-emerald-400/50 transition-all duration-300 hover:-translate-y-1 space-y-3 group flex flex-col justify-between"
+              >
+                {/* Image Showcase */}
+                <div className="h-36 sm:h-40 rounded-xl overflow-hidden bg-muted/40 flex items-center justify-center p-2.5 relative border border-border/40 group-hover:border-emerald-300/40 transition-colors">
+                  <img
+                    src={card.img}
+                    alt={card.title}
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <span className={`absolute top-2.5 left-2.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${card.tagColor} shadow-sm backdrop-blur-sm`}>
+                    {card.tag}
+                  </span>
+                </div>
+                {/* Content */}
+                <div>
+                  <div className="font-extrabold text-base text-foreground group-hover:text-emerald-600 transition-colors">
+                    {card.title}
+                  </div>
+                  <div className="text-xs text-muted-foreground leading-relaxed mt-1">
+                    {card.desc}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
