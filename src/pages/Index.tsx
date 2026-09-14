@@ -124,14 +124,14 @@ const Index = () => {
   };
 
   const categories = [
-    { name: 'Tools', icon: Wrench, color: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' },
-    { name: 'Gardening', icon: Sprout, color: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' },
-    { name: 'Electronics', icon: Tv, color: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' },
-    { name: 'Outdoors', icon: Tent, color: 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100' },
-    { name: 'Kitchen', icon: Utensils, color: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' },
-    { name: 'Books', icon: BookOpen, color: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100' },
-    { name: 'Hardware', icon: Hammer, color: 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' },
-    { name: 'Sports', icon: Dumbbell, color: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100' },
+    { name: 'Tools', img: '/categories/tools.jpg', icon: Wrench, count: '75+ items', desc: 'Cordless drills, toolkits, saws & ladders', color: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' },
+    { name: 'Gardening', img: '/categories/gardening.jpg', icon: Sprout, count: '48+ items', desc: 'Lawn mowers, hedge trimmers, pots & soil', color: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' },
+    { name: 'Electronics', img: '/categories/electronics.jpg', icon: Tv, count: '92+ items', desc: 'Gaming consoles, cameras, projectors & audio', color: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' },
+    { name: 'Outdoors', img: '/categories/outdoors.jpg', icon: Tent, count: '54+ items', desc: 'Camping tents, sleeping bags & stoves', color: 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100' },
+    { name: 'Kitchen', img: '/categories/kitchen.jpg', icon: Utensils, count: '63+ items', desc: 'Blenders, stand mixers & espresso machines', color: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' },
+    { name: 'Books', img: '/categories/books.jpg', icon: BookOpen, count: '120+ items', desc: 'Bestseller fiction, non-fiction & study guides', color: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100' },
+    { name: 'Hardware', img: '/categories/hardware.jpg', icon: Hammer, count: '40+ items', desc: 'Hammers, workbenches, fixings & toolsets', color: 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' },
+    { name: 'Sports', img: '/categories/sports.jpg', icon: Dumbbell, count: '58+ items', desc: 'Dumbbells, fitness gear, cycles & rackets', color: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100' },
   ];
 
   const benefits = [
@@ -566,19 +566,101 @@ const Index = () => {
       </section>
 
       {/* ══════════════════════════════════════
-          CATEGORY PILLS
+          BROWSE BY CATEGORY — Dynamic Flow with Real Images
       ══════════════════════════════════════ */}
-      <section className="border-y py-10 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-5">Browse by Category</p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Button variant="default" onClick={() => navigate('/browse')} className="rounded-full px-5 gap-2 font-semibold shadow-sm">
-              <Globe className="h-4 w-4" /> All Items
+      <section className="py-16 bg-muted/25 border-y overflow-hidden relative">
+        <div className="container mx-auto px-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400 mb-2">
+                Explore Everything
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Browse by <span className="text-emerald-600">Category</span>
+              </h2>
+              <p className="text-muted-foreground text-sm mt-1">
+                Discover thousands of verified community items available to borrow or rent near you.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/browse')}
+              className="gap-2 font-semibold self-start sm:self-auto hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition-all shadow-sm"
+            >
+              <Globe className="h-4 w-4" /> View All Listings <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Dynamic Auto-Flow Category Image Cards Marquee */}
+        <div className="w-full overflow-hidden py-3">
+          <div className="flex w-max animate-ticker gap-4 px-4 hover:[animation-play-state:paused]">
+            {[...categories, ...categories].map((cat, i) => (
+              <div
+                key={i}
+                onClick={() => navigate(`/browse?category=${cat.name}`)}
+                className="w-64 sm:w-72 rounded-2xl overflow-hidden border bg-card shadow-sm hover:shadow-2xl hover:border-emerald-400/70 cursor-pointer flex-shrink-0 group transition-all duration-300 hover:-translate-y-2 relative"
+              >
+                {/* Category Image with Gradient */}
+                <div className="h-44 sm:h-48 overflow-hidden relative">
+                  <img
+                    src={cat.img}
+                    alt={cat.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+
+                  {/* Category icon pill */}
+                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-md flex items-center gap-1.5 border border-white/20 shadow">
+                    <cat.icon className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>{cat.name}</span>
+                  </div>
+
+                  {/* Count pill */}
+                  <div className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-md flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> {cat.count}
+                  </div>
+
+                  {/* Bottom title & description */}
+                  <div className="absolute bottom-3 left-3 right-3 text-white">
+                    <div className="font-extrabold text-lg flex items-center justify-between">
+                      <span>{cat.name}</span>
+                      <span className="text-xs text-emerald-300 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 bg-white/15 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                        Browse <ArrowRight className="h-3 w-3" />
+                      </span>
+                    </div>
+                    <div className="text-xs text-white/80 line-clamp-1 mt-0.5">
+                      {cat.desc}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Clickable Category Filter Chips */}
+        <div className="container mx-auto px-4 mt-8">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => navigate('/browse')}
+              className="rounded-full px-4 text-xs font-semibold shadow-sm"
+            >
+              <Globe className="h-3.5 w-3.5 mr-1" /> All Items
             </Button>
             {categories.map((cat) => (
-              <Button key={cat.name} variant="outline" onClick={() => navigate(`/browse?category=${cat.name}`)}
-                className={`rounded-full px-5 gap-2 font-semibold border transition-all hover:scale-105 ${cat.color}`}>
-                <cat.icon className="h-4 w-4" /> {cat.name}
+              <Button
+                key={cat.name}
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/browse?category=${cat.name}`)}
+                className="rounded-full px-4 text-xs font-semibold border transition-all hover:scale-105 hover:border-emerald-400 hover:text-emerald-700 gap-1.5"
+              >
+                <cat.icon className="h-3.5 w-3.5 text-emerald-600" />
+                {cat.name}
               </Button>
             ))}
           </div>
