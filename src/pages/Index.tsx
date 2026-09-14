@@ -1,15 +1,22 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ItemCard } from '@/components/items/ItemCard';
-import { 
-  Leaf, Users, Package, ArrowRight, Recycle, Shield, Clock, 
-  Wrench, Sprout, Tv, Tent, Utensils, BookOpen, Hammer, Sparkles, CheckCircle2 
+import { useToast } from '@/hooks/use-toast';
+import {
+  Leaf, Users, Package, ArrowRight, Recycle, Shield, Clock,
+  Wrench, Sprout, Tv, Tent, Utensils, BookOpen, Hammer, Sparkles,
+  CheckCircle2, HelpCircle, HeartHandshake, Star, Globe, TrendingUp,
+  Dumbbell, ChevronDown, ChevronUp, Send, Mail, MessageSquare,
+  Zap, BadgeCheck, Coins, TreePine, LogIn,
+  HandshakeIcon, RotateCcw, ThumbsUp, Camera
 } from 'lucide-react';
 
 interface RecentItem {
@@ -27,12 +34,53 @@ interface RecentItem {
   categories: { name: string } | null;
 }
 
+const faqs = [
+  {
+    q: 'What is Community Share Hub?',
+    a: 'Community Share Hub is a local resource-sharing platform where verified community members can list items they own — tools, books, electronics, kitchen appliances, sports gear, and more — and lend them to neighbours for free or a small fee. It\'s a smarter, greener way to use what already exists in your community.',
+  },
+  {
+    q: 'Is it free to join and list items?',
+    a: 'Yes! Signing up is 100% free, and there are zero listing fees. Some owners may choose to set a refundable security deposit or a small daily rental fee — that\'s up to them.',
+  },
+  {
+    q: 'How do I borrow an item?',
+    a: 'Browse the marketplace, click on an item you need, select your preferred start and end dates, and send a borrow request. Once the owner approves, you arrange a convenient pickup. Simple!',
+  },
+  {
+    q: 'How does member verification work?',
+    a: 'Members verify via email and phone. Community reviews further build trust. Verified badges mean you can borrow and lend with confidence — knowing items will be handled responsibly and returned on time.',
+  },
+  {
+    q: 'What if an item gets damaged during borrowing?',
+    a: 'Owners can set a security deposit that covers any damage. Both parties agree to the condition of the item at pickup and return. Our community guidelines encourage honest, respectful communication to resolve any issues.',
+  },
+  {
+    q: 'Can I list items for sale, not just borrowing?',
+    a: 'Absolutely! Listings can be set as "For Borrowing" or "For Sale". You choose the type when creating your listing. This gives you flexibility to either lend temporarily or sell items you no longer need.',
+  },
+  {
+    q: 'Is my personal information safe?',
+    a: 'Yes. We only show your display name and verified badge publicly. Your phone, address, and personal details are never shared without your consent. All data is stored securely via Supabase with row-level security.',
+  },
+  {
+    q: 'How do I report a problem or bad actor?',
+    a: 'Use the "Report" feature on any item listing or user profile, or contact us via the query form on this page. Our moderation team reviews all reports within 24 hours.',
+  },
+];
+
 const Index = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  // Query form state
+  const [queryForm, setQueryForm] = useState({ name: '', email: '', message: '' });
+  const [querySending, setQuerySending] = useState(false);
 
   useEffect(() => {
     fetchRecentItems();
@@ -41,301 +89,671 @@ const Index = () => {
   const fetchRecentItems = async () => {
     const { data } = await supabase
       .from('items')
-      .select(`
-        id,
-        title,
-        description,
-        image_url,
-        condition,
-        is_available,
-        is_verified,
-        location,
-        max_borrow_days,
-        listing_type,
-        price,
-        categories (name)
-      `)
+      .select(`id, title, description, image_url, condition, is_available, is_verified,
+        location, max_borrow_days, listing_type, price, categories (name)`)
       .order('created_at', { ascending: false })
       .limit(4);
-
-    if (data) {
-      setRecentItems(data as unknown as RecentItem[]);
-    }
+    if (data) setRecentItems(data as unknown as RecentItem[]);
     setLoadingItems(false);
   };
 
+  const handleQuerySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!queryForm.name || !queryForm.email || !queryForm.message) {
+      toast({ title: 'Please fill all fields', variant: 'destructive' });
+      return;
+    }
+    setQuerySending(true);
+    await new Promise(r => setTimeout(r, 1200));
+    setQuerySending(false);
+    setQueryForm({ name: '', email: '', message: '' });
+    toast({
+      title: '✅ Query Sent!',
+      description: 'We\'ll get back to you within 24 hours.',
+    });
+  };
+
   const categories = [
-    { name: 'Tools', icon: Wrench, color: 'bg-amber-500/10 text-amber-600 border-amber-200' },
-    { name: 'Gardening', icon: Sprout, color: 'bg-emerald-500/10 text-emerald-600 border-emerald-200' },
-    { name: 'Electronics', icon: Tv, color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
-    { name: 'Outdoors', icon: Tent, color: 'bg-teal-500/10 text-teal-600 border-teal-200' },
-    { name: 'Kitchen', icon: Utensils, color: 'bg-rose-500/10 text-rose-600 border-rose-200' },
-    { name: 'Books', icon: BookOpen, color: 'bg-purple-500/10 text-purple-600 border-purple-200' },
-    { name: 'Hardware', icon: Hammer, color: 'bg-orange-500/10 text-orange-600 border-orange-200' },
+    { name: 'Tools', icon: Wrench, color: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' },
+    { name: 'Gardening', icon: Sprout, color: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' },
+    { name: 'Electronics', icon: Tv, color: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' },
+    { name: 'Outdoors', icon: Tent, color: 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100' },
+    { name: 'Kitchen', icon: Utensils, color: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' },
+    { name: 'Books', icon: BookOpen, color: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100' },
+    { name: 'Hardware', icon: Hammer, color: 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' },
+    { name: 'Sports', icon: Dumbbell, color: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100' },
   ];
 
-  const features = [
+  const benefits = [
     {
-      icon: Recycle,
+      icon: Coins, color: 'bg-amber-500',
+      title: 'Save Money',
+      desc: 'Why buy something you\'ll use once? Borrow it for free or a fraction of the cost. Members save an average of ₹2,000+ monthly.'
+    },
+    {
+      icon: Recycle, color: 'bg-emerald-500',
       title: 'Reduce Waste',
-      description: 'Share resources instead of buying new. Help reduce landfill waste and carbon footprint in your community.'
+      desc: 'Every borrowed item is one less product manufactured. Share resources, cut emissions, and shrink your carbon footprint.'
     },
     {
-      icon: Users,
+      icon: Users, color: 'bg-blue-500',
       title: 'Build Community',
-      description: 'Connect with neighbors and colleagues. Build trust through friendly local resource sharing.'
+      desc: 'Strengthen bonds with neighbours. Sharing creates trust, friendships, and a true sense of belonging in your area.'
     },
     {
-      icon: Shield,
-      title: 'Verified Members',
-      description: 'Community members pass verification for safe, reliable, and trustworthy transactions.'
+      icon: BadgeCheck, color: 'bg-violet-500',
+      title: 'Earn Extra Income',
+      desc: 'List items you rarely use and earn a rental income. Your drill, camera, or tent can work for you while you\'re not using them.'
     },
     {
-      icon: Clock,
-      title: 'Flexible Borrowing',
-      description: 'Borrow tools or gear for custom time periods with our instant approval-based request system.'
-    }
+      icon: Shield, color: 'bg-teal-500',
+      title: 'Safe & Verified',
+      desc: 'All members go through verification. Ratings, reviews, and security deposits ensure safe, accountable transactions.'
+    },
+    {
+      icon: TreePine, color: 'bg-green-600',
+      title: 'Eco-Friendly Living',
+      desc: 'Join a movement of conscious consumers choosing access over ownership — better for your wallet and the planet.'
+    },
   ];
 
   const steps = [
     {
-      number: '01',
-      title: 'List or Discover',
-      description: 'Post items gathering dust at home, or browse what neighbors are offering to share.'
+      number: '01', icon: LogIn,
+      title: 'Sign Up Free',
+      desc: 'Create your free account in 60 seconds. Verify your email and phone to get your trusted member badge.',
+      tip: 'No credit card required'
     },
     {
-      number: '02',
-      title: 'Connect & Request',
-      description: 'Send a quick borrow request with your preferred dates, or message the owner directly.'
+      number: '02', icon: Search,
+      title: 'Browse or List',
+      desc: 'Search for items you need in your community, or list items you own to share with others. Both are completely free.',
+      tip: 'Filter by category, location & availability'
     },
     {
-      number: '03',
-      title: 'Share & Save',
-      description: 'Pick up the item, complete your project, return it safely, and save money together!'
-    }
+      number: '03', icon: MessageSquare,
+      title: 'Request & Connect',
+      desc: 'Found something you need? Send a borrow request with your preferred dates. The owner gets notified instantly.',
+      tip: 'Message the owner directly'
+    },
+    {
+      number: '04', icon: HandshakeIcon,
+      title: 'Pick Up & Use',
+      desc: 'Once approved, arrange a convenient pickup. Inspect the item together, use it for your project, and enjoy the savings!',
+      tip: 'Agree on condition at handover'
+    },
+    {
+      number: '05', icon: RotateCcw,
+      title: 'Return & Review',
+      desc: 'Return the item on time in the same condition. Leave an honest review to build trust in the community.',
+      tip: 'Good reviews unlock better listings'
+    },
+    {
+      number: '06', icon: ThumbsUp,
+      title: 'Repeat & Grow',
+      desc: 'The more you share and borrow, the stronger your community becomes. Invite neighbours to multiply the benefit!',
+      tip: 'Referrals unlock special perks'
+    },
   ];
 
   const stats = [
-    { value: '500+', label: 'Items Listed' },
-    { value: '200+', label: 'Verified Members' },
-    { value: '1,000+', label: 'Successful Borrows' },
-    { value: '~1.5T', label: 'CO₂ Saved Monthly' }
+    { value: '500+', label: 'Items Listed', icon: Package, color: 'text-emerald-600' },
+    { value: '200+', label: 'Verified Members', icon: Users, color: 'text-teal-600' },
+    { value: '1,000+', label: 'Successful Borrows', icon: TrendingUp, color: 'text-blue-600' },
+    { value: '₹0', label: 'Listing Fees', icon: Star, color: 'text-violet-600' },
+  ];
+
+  const heroItems = [
+    {
+      img: '/items/drill.jpg',
+      label: 'Professional Cordless Drill',
+      cat: 'Tools',
+      status: 'Available',
+      owner: 'Rahul M.',
+      price: 'Free / borrow',
+    },
+    {
+      img: '/items/books.jpg',
+      label: 'Bestseller Book Collection',
+      cat: 'Books',
+      status: 'Available',
+      owner: 'Sneha R.',
+      price: 'Free',
+    },
+    {
+      img: '/items/controller.jpg',
+      label: 'RedGear Gaming Controller',
+      cat: 'Electronics',
+      status: 'Available',
+      owner: 'Arjun K.',
+      price: '₹80/day',
+    },
+    {
+      img: '/items/camera.jpg',
+      label: 'Canon EOS DSLR Camera',
+      cat: 'Photography',
+      status: 'Available',
+      owner: 'Priya S.',
+      price: '₹150/day',
+    },
+  ];
+
+  const tickerItems = [
+    { img: '/items/drill.jpg',      label: 'Cordless Drill',      cat: 'Tools',       price: 'Free',     status: 'Available' },
+    { img: '/items/books.jpg',      label: 'Book Collection',     cat: 'Books',       price: 'Free',     status: 'Available' },
+    { img: '/items/controller.jpg', label: 'Gaming Controller',   cat: 'Electronics', price: '₹80/day',  status: 'Available' },
+    { img: '/items/camera.jpg',     label: 'Canon DSLR Camera',   cat: 'Photography', price: '₹150/day', status: 'Available' },
+    { img: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=200&q=80', label: 'Camping Tent', cat: 'Outdoors', price: '₹50/day', status: 'Borrowed' },
+    { img: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=200&q=80', label: 'Lawn Mower', cat: 'Gardening', price: 'Free', status: 'Available' },
+    { img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=200&q=80', label: 'PS5 Console', cat: 'Electronics', price: '₹100/day', status: 'Available' },
+    { img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=200&q=80', label: 'Bicycle', cat: 'Sports', price: '₹30/day', status: 'Available' },
   ];
 
   return (
     <MainLayout>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background py-20 lg:py-28 border-b">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/30 bg-primary/5 text-primary text-xs font-semibold gap-1.5 shadow-xs">
-              <Sparkles className="h-3.5 w-3.5" /> 🌱 Sustainable Community Sharing Platform
-            </Badge>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
-              <span className="eco-gradient-text">{t('heroTitle')}</span>
-            </h1>
+      {/* ══════════════════════════════════════
+          HERO SECTION — Real Item Images
+      ══════════════════════════════════════ */}
+      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a3a2a 0%, #2d6a4f 45%, #52b788 100%)' }}>
+        {/* Decorative blobs */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-10 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, #95d5b2, transparent)', transform: 'translate(20%, -30%)' }} />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full opacity-10 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, #74c69d, transparent)', transform: 'translate(-30%, 30%)' }} />
 
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {t('heroSub')}
-            </p>
+        <div className="container mx-auto px-4 py-20 lg:py-28 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              {user ? (
-                <>
-                  <Button size="lg" onClick={() => navigate('/browse')} className="gap-2 text-base font-semibold shadow-md hover:shadow-lg transition-all">
-                    {t('browseMarketplace')} <ArrowRight className="h-4 w-4" />
-                  </Button>
-                  <Button size="lg" variant="outline" onClick={() => navigate('/add-item')} className="gap-2 text-base font-semibold border-2">
-                    <Package className="h-4 w-4 text-primary" />
-                    {t('listItemNav')}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button size="lg" onClick={() => navigate('/auth')} className="gap-2 text-base font-semibold shadow-md hover:shadow-lg transition-all">
-                    Join Community Free <ArrowRight className="h-4 w-4" />
-                  </Button>
-                  <Button size="lg" variant="outline" onClick={() => navigate('/browse')} className="text-base font-semibold border-2">
-                    {t('browse')}
-                  </Button>
-                </>
-              )}
+            {/* ── LEFT: Headline + CTAs ── */}
+            <div className="space-y-6">
+              <div className="animate-fade-up">
+                <Badge className="px-4 py-1.5 rounded-full text-xs font-semibold bg-white/15 text-white border-white/25 backdrop-blur-sm gap-1.5">
+                  <Leaf className="h-3.5 w-3.5" /> 🌱 Sustainable Community Sharing Platform
+                </Badge>
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white animate-fade-up-2">
+                Share More.<br />
+                Spend Less.<br />
+                <span style={{ color: '#b7e4c7' }}>Build Community.</span>
+              </h1>
+              <p className="text-lg text-white/80 max-w-md leading-relaxed animate-fade-up-3">
+                Borrow tools, books, gear and more from your neighbours — for free or a small fee. A smarter, greener, more connected way to live.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2 animate-fade-up-4">
+                <Button size="lg" onClick={() => navigate('/browse')}
+                  className="gap-2 text-base font-bold bg-white text-emerald-900 hover:bg-white/90 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+                  Browse Items <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button size="lg" variant="outline" onClick={() => navigate(user ? '/add-item' : '/auth')}
+                  className="gap-2 text-base font-semibold border-2 border-white/35 text-white hover:bg-white/10">
+                  {user ? <><Package className="h-4 w-4" /> List Your Item</> : '🚀 Join for Free'}
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-5 text-xs text-white/65 pt-1 animate-fade-up-5">
+                <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" style={{ color: '#b7e4c7' }} /> Free Signup</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" style={{ color: '#b7e4c7' }} /> Verified Profiles</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" style={{ color: '#b7e4c7' }} /> Zero Listing Fees</span>
+              </div>
             </div>
 
-            {/* Quick Trust Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground pt-6">
-              <span className="flex items-center gap-1.5 font-medium">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Free Community Signup
-              </span>
-              <span className="flex items-center gap-1.5 font-medium">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Verified User Profiles
-              </span>
-              <span className="flex items-center gap-1.5 font-medium">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Zero Listing Fees
-              </span>
+            {/* ── RIGHT: Real Item Image Cards with Float Animations ── */}
+            <div className="hidden lg:grid grid-cols-2 gap-4">
+              {heroItems.map((item, i) => (
+                <div key={i}
+                  onClick={() => navigate('/browse')}
+                  className={`rounded-2xl border border-white/20 shadow-xl cursor-pointer overflow-hidden group animate-float-${i + 1}`}
+                  style={{
+                    background: 'rgba(255,255,255,0.08)',
+                    backdropFilter: 'blur(14px)',
+                    marginTop: i % 2 === 1 ? '28px' : '0'
+                  }}>
+                  {/* Image */}
+                  <div className="relative h-40 overflow-hidden">
+                    <img src={item.img} alt={item.label}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    {/* Status pill */}
+                    <div className={`absolute top-2.5 right-2.5 text-[10px] px-2.5 py-1 rounded-full font-bold shadow ${item.status === 'Available' ? 'bg-emerald-500 text-white' : 'bg-amber-400 text-black'}`}>
+                      ● {item.status}
+                    </div>
+                    {/* Category chip */}
+                    <div className="absolute bottom-2.5 left-2.5 text-[10px] px-2 py-0.5 rounded-full bg-black/40 text-white/90 backdrop-blur-sm font-medium">
+                      {item.cat}
+                    </div>
+                  </div>
+                  {/* Info */}
+                  <div className="p-3.5">
+                    <div className="text-white font-bold text-sm leading-tight truncate">{item.label}</div>
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-white/55 text-xs">{item.owner}</span>
+                      <span className="text-emerald-300 text-xs font-bold">{item.price}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Decorative backdrop blobs */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Wave bottom */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+            <path d="M0 50L1440 50L1440 15C1200 50 960 0 720 18C480 36 240 0 0 15L0 50Z" fill="hsl(var(--background))" />
+          </svg>
+        </div>
       </section>
 
-      {/* Quick Category Navigation Pills */}
-      <section className="container mx-auto px-4 -mt-8 relative z-20">
-        <div className="p-6 rounded-2xl bg-card border shadow-lg">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4 text-center sm:text-left">
-            Popular Categories
-          </h3>
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+      {/* ══════════════════════════════════════
+          INFINITE SCROLL TICKER — Auto-scrolling item showcase
+      ══════════════════════════════════════ */}
+      <section className="border-b bg-card/80 py-3 overflow-hidden">
+        <div className="flex w-max animate-ticker gap-0">
+          {[...tickerItems, ...tickerItems].map((item, i) => (
+            <div key={i}
+              onClick={() => navigate('/browse')}
+              className="flex items-center gap-3 mx-3 px-4 py-2.5 rounded-2xl border bg-background hover:shadow-md hover:border-emerald-300 cursor-pointer flex-shrink-0 group transition-all">
+              {/* Thumbnail */}
+              <div className="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
+                <img src={item.img} alt={item.label}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-foreground whitespace-nowrap">{item.label}</div>
+                <div className="text-[10px] text-muted-foreground whitespace-nowrap">{item.cat} • {item.price}</div>
+              </div>
+              <div className={`text-[9px] px-2 py-0.5 rounded-full font-bold flex-shrink-0 ${item.status === 'Available' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-amber-100 text-amber-700'}`}>
+                {item.status}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          STATS BAR
+      ══════════════════════════════════════ */}
+      <section className="container mx-auto px-4 py-8 relative z-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat, i) => (
+            <div key={i} className={`flex items-center gap-3 p-5 rounded-2xl bg-card border shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 animate-fade-up-${Math.min(i + 1, 5)}`}>
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-muted">
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+              </div>
+              <div>
+                <div className={`text-2xl font-extrabold leading-none ${stat.color}`}>{stat.value}</div>
+                <div className="text-xs text-muted-foreground font-medium mt-0.5">{stat.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          WHAT IS COMMUNITY SHARE HUB?
+      ══════════════════════════════════════ */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-5">
+            <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400">
+              About Us
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              What is <span className="text-emerald-600">Community Share Hub?</span>
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Community Share Hub is a <strong>hyperlocal resource-sharing marketplace</strong> that connects neighbours, colleagues, and community members to share physical items — instead of everyone buying their own.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              Think about the tools in your garage, the books on your shelf, or the camping gear collecting dust. Someone nearby needs exactly those things today. Meanwhile, you need something they own. Community Share Hub makes that exchange effortless, safe, and rewarding.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              It's not just a marketplace — it's a movement towards <strong>conscious consumption</strong>, where communities thrive by sharing rather than hoarding.
+            </p>
+            <div className="flex gap-3 pt-2">
+              <Button onClick={() => navigate('/browse')} className="gap-2" style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}>
+                Explore Listings <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/auth')} className="gap-2">
+                Join the Community
+              </Button>
+            </div>
+          </div>
+
+          {/* Visual info cards */}
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { icon: '🏠', title: 'Hyperlocal', desc: 'Share within your neighbourhood, building, or campus.' },
+              { icon: '🤝', title: 'Trust-Based', desc: 'Verified profiles, ratings, and community reviews.' },
+              { icon: '💚', title: 'Eco-First', desc: 'Every share reduces manufacturing demand and waste.' },
+              { icon: '💰', title: 'Save & Earn', desc: 'Borrow for less. Earn from what you already own.' },
+            ].map((card, i) => (
+              <div key={i} className="p-5 rounded-2xl border bg-card hover:shadow-md transition-all hover:-translate-y-0.5 space-y-2">
+                <div className="text-3xl">{card.icon}</div>
+                <div className="font-bold">{card.title}</div>
+                <div className="text-xs text-muted-foreground leading-relaxed">{card.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          CATEGORY PILLS
+      ══════════════════════════════════════ */}
+      <section className="border-y py-10 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-5">Browse by Category</p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Button variant="default" onClick={() => navigate('/browse')} className="rounded-full px-5 gap-2 font-semibold shadow-sm">
+              <Globe className="h-4 w-4" /> All Items
+            </Button>
             {categories.map((cat) => (
-              <Button
-                key={cat.name}
-                variant="outline"
-                onClick={() => navigate(`/browse?category=${cat.name}`)}
-                className={`gap-2 rounded-full border transition-transform hover:scale-[1.03] ${cat.color}`}
-              >
-                <cat.icon className="h-4 w-4" />
-                <span>{cat.name}</span>
+              <Button key={cat.name} variant="outline" onClick={() => navigate(`/browse?category=${cat.name}`)}
+                className={`rounded-full px-5 gap-2 font-semibold border transition-all hover:scale-105 ${cat.color}`}>
+                <cat.icon className="h-4 w-4" /> {cat.name}
               </Button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Stats Counter Section */}
-      <section className="border-y bg-card/50 py-12 mt-16">
+      {/* ══════════════════════════════════════
+          BENEFITS
+      ══════════════════════════════════════ */}
+      <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {stats.map((stat, index) => (
-              <div key={index} className="space-y-1">
-                <div className="text-3xl md:text-4xl font-extrabold text-primary">{stat.value}</div>
-                <div className="text-xs sm:text-sm font-medium text-muted-foreground">{stat.label}</div>
+          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+            <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400">
+              Why Join?
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Benefits of Sharing</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Community Share Hub isn't just about saving money — it's about building a better, greener, more connected world.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {benefits.map((b, i) => (
+              <div key={i} className="group p-6 rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 space-y-4">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform ${b.color}`}>
+                  <b.icon className="h-7 w-7" />
+                </div>
+                <h3 className="font-extrabold text-lg">{b.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Live Recent Items Preview Section */}
+      {/* ══════════════════════════════════════
+          HOW IT WORKS — STEP BY STEP
+      ══════════════════════════════════════ */}
+      <section className="py-20 border-y" style={{ background: 'linear-gradient(180deg, hsl(var(--muted)/0.5) 0%, hsl(var(--background)) 100%)' }}>
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+            <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400">
+              Step-by-Step Guide
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">How It Works</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              From sign-up to first borrow — here's exactly how Community Share Hub works.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {steps.map((step, i) => (
+              <div key={i} className="relative p-6 rounded-2xl bg-card border hover:shadow-xl hover:-translate-y-1 transition-all duration-300 space-y-4 overflow-hidden group">
+                {/* Background number watermark */}
+                <div className="absolute -right-3 -top-3 text-[7rem] font-black opacity-[0.04] select-none pointer-events-none leading-none" style={{ color: '#2d6a4f' }}>
+                  {step.number}
+                </div>
+                {/* Step number badge */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
+                    style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}>
+                    {step.number}
+                  </div>
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-muted group-hover:bg-emerald-50 transition-colors">
+                    <step.icon className="h-4 w-4 text-emerald-600" />
+                  </div>
+                </div>
+                <h3 className="font-extrabold text-lg">{step.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-full w-fit">
+                  <Zap className="h-3 w-3" /> {step.tip}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button size="lg" onClick={() => navigate(user ? '/browse' : '/auth')}
+              className="gap-2 font-bold px-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+              style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}>
+              {user ? 'Start Browsing' : 'Get Started — It\'s Free'} <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          RECENT LISTINGS
+      ══════════════════════════════════════ */}
       <section className="container mx-auto px-4 py-20">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
           <div>
-            <Badge variant="outline" className="mb-2 text-primary border-primary/30">
+            <Badge variant="outline" className="mb-2 text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400">
               Fresh Listings
             </Badge>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Available Nearby</h2>
-            <p className="text-muted-foreground text-sm mt-1">Explore items recently shared by community members</p>
+            <p className="text-muted-foreground text-sm mt-1">Items recently shared by community members</p>
           </div>
-          <Button variant="ghost" onClick={() => navigate('/browse')} className="mt-4 sm:mt-0 gap-1 text-primary hover:text-primary font-semibold">
-            View All Marketplace Items <ArrowRight className="h-4 w-4" />
+          <Button variant="ghost" onClick={() => navigate('/browse')}
+            className="mt-4 sm:mt-0 gap-1 text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 font-semibold hover:bg-emerald-50 dark:hover:bg-emerald-950/20">
+            View All <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
 
         {recentItems.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {recentItems.map((item) => (
-              <ItemCard
-                key={item.id}
-                id={item.id}
-                title={item.title}
-                description={item.description}
-                imageUrl={item.image_url}
-                condition={item.condition}
-                isAvailable={item.is_available ?? true}
-                isVerified={item.is_verified ?? false}
-                location={item.location}
-                categoryName={item.categories?.name ?? null}
-                ownerName={null}
-                maxBorrowDays={item.max_borrow_days}
-                listingType={item.listing_type}
-                price={item.price}
-              />
+              <ItemCard key={item.id} id={item.id} title={item.title}
+                description={item.description} imageUrl={item.image_url}
+                condition={item.condition} isAvailable={item.is_available ?? true}
+                isVerified={item.is_verified ?? false} location={item.location}
+                categoryName={item.categories?.name ?? null} ownerName={null}
+                maxBorrowDays={item.max_borrow_days} listingType={item.listing_type}
+                price={item.price} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 p-8 rounded-xl border bg-card/40 border-dashed">
-            <Package className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
-            <p className="text-muted-foreground font-medium text-sm">Be the first to share an item with your community!</p>
-            <Button onClick={() => navigate('/add-item')} size="sm" className="mt-4 gap-2">
-              <Package className="h-4 w-4" /> List an Item Now
+          <div className="text-center py-16 rounded-2xl border border-dashed bg-card/40">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-emerald-50 dark:bg-emerald-950/20">
+              <Package className="h-10 w-10 text-emerald-500" />
+            </div>
+            <h3 className="font-bold text-lg mb-1">Be the first to share!</h3>
+            <p className="text-muted-foreground text-sm mb-5 max-w-xs mx-auto">No items listed yet. Start the community by sharing something you own.</p>
+            <Button onClick={() => navigate(user ? '/add-item' : '/auth')}
+              className="gap-2 font-semibold" style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}>
+              <Package className="h-4 w-4" /> {user ? 'List an Item' : 'Join & Start Sharing'}
             </Button>
           </div>
         )}
       </section>
 
-      {/* How EcoHub Works - 3 Step Flow */}
-      <section className="bg-muted/40 py-20 border-y">
+      {/* ══════════════════════════════════════
+          FAQ — QUESTIONS & ANSWERS
+      ══════════════════════════════════════ */}
+      <section className="py-20 border-t bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-2">
-            <Badge variant="outline" className="text-primary border-primary/30">
-              Simple 3-Step Process
+          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+            <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400">
+              <HelpCircle className="h-3.5 w-3.5 mr-1" /> Got Questions?
             </Badge>
-            <h2 className="text-3xl font-bold tracking-tight">How EcoHub Works</h2>
-            <p className="text-muted-foreground text-sm">
-              Sharing resources is safe, easy, and rewarding. Here is how you can start borrowing in minutes.
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Frequently Asked Questions</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Everything you need to know about borrowing, lending, and using Community Share Hub.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {steps.map((step, index) => (
-              <div key={index} className="relative p-8 rounded-2xl bg-card border shadow-xs space-y-4 hover:shadow-md transition-shadow">
-                <div className="text-4xl font-black eco-gradient-text">{step.number}</div>
-                <h3 className="text-xl font-bold">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+          <div className="max-w-3xl mx-auto space-y-3">
+            {faqs.map((faq, i) => (
+              <div key={i}
+                className={`rounded-2xl border bg-card overflow-hidden transition-all duration-200 ${openFaq === i ? 'shadow-md' : 'hover:shadow-sm'}`}>
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-5 text-left gap-4"
+                >
+                  <span className="font-semibold text-sm sm:text-base leading-snug">{faq.q}</span>
+                  <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${openFaq === i ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground'}`}>
+                    {openFaq === i ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </div>
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed border-t pt-4">
+                    {faq.a}
+                  </div>
+                )}
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Why Choose EcoHub?</h2>
-          <p className="text-muted-foreground text-sm">
-            Join a conscious community of neighbors committed to sharing resources responsibly.
-          </p>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((feature, index) => (
-            <div 
-              key={index} 
-              className="p-6 rounded-2xl border bg-card hover:shadow-md hover:border-primary/30 transition-all space-y-3"
-            >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                <feature.icon className="h-6 w-6" />
-              </div>
-              <h3 className="font-bold text-lg">{feature.title}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{feature.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA Banner */}
-      <section className="container mx-auto px-4 pb-20">
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-10 md:p-16 text-center shadow-xl">
-          <div className="max-w-2xl mx-auto space-y-6 relative z-10">
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-              Ready to start sharing & borrowing?
-            </h2>
-            <p className="opacity-90 text-sm md:text-base leading-relaxed">
-              Join EcoHub today and become part of a sustainable community that values sharing over owning.
-            </p>
-            <Button 
-              size="lg" 
-              variant="secondary"
-              onClick={() => navigate(user ? '/browse' : '/auth')}
-              className="font-bold text-base px-8 shadow-md hover:bg-white text-emerald-900"
-            >
-              {user ? 'Browse Marketplace' : 'Join Now – Free Account'}
+          <div className="text-center mt-10">
+            <p className="text-sm text-muted-foreground mb-3">Still have questions?</p>
+            <Button variant="outline" onClick={() => navigate('/faq-feedback')} className="gap-2 font-semibold">
+              <MessageSquare className="h-4 w-4" /> Visit Full FAQ & Feedback Page
             </Button>
           </div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
         </div>
       </section>
+
+      {/* ══════════════════════════════════════
+          SEND A QUERY FORM
+      ══════════════════════════════════════ */}
+      <section className="py-20 border-t">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            {/* Left info */}
+            <div className="space-y-6">
+              <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400">
+                <Mail className="h-3.5 w-3.5 mr-1" /> Contact Us
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Send Us a Query</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Have a question, suggestion, or issue not covered in the FAQs? Drop us a message and our team will get back to you within 24 hours.
+              </p>
+              <div className="space-y-4 pt-2">
+                {[
+                  { icon: MessageSquare, title: 'General Queries', desc: 'Questions about how the platform works.' },
+                  { icon: Shield, title: 'Trust & Safety', desc: 'Report issues or concerns about members/items.' },
+                  { icon: Sparkles, title: 'Feature Suggestions', desc: 'Ideas for making the platform better.' },
+                  { icon: HeartHandshake, title: 'Partnership', desc: 'Interested in collaborating with us.' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl border bg-card hover:shadow-sm transition-shadow">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-center flex-shrink-0">
+                      <item.icon className="h-4 w-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-sm">{item.title}</div>
+                      <div className="text-xs text-muted-foreground">{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Form */}
+            <div className="p-8 rounded-3xl border bg-card shadow-sm">
+              <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
+                <Send className="h-5 w-5 text-emerald-600" /> Write to Us
+              </h3>
+              <form onSubmit={handleQuerySubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium">Your Name <span className="text-red-500">*</span></label>
+                  <Input
+                    id="query-name"
+                    placeholder="e.g. Rahul Sharma"
+                    value={queryForm.name}
+                    onChange={e => setQueryForm(p => ({ ...p, name: e.target.value }))}
+                    className="rounded-xl"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium">Email Address <span className="text-red-500">*</span></label>
+                  <Input
+                    id="query-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={queryForm.email}
+                    onChange={e => setQueryForm(p => ({ ...p, email: e.target.value }))}
+                    className="rounded-xl"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium">Your Message <span className="text-red-500">*</span></label>
+                  <Textarea
+                    id="query-message"
+                    placeholder="Describe your query, suggestion, or issue in detail..."
+                    value={queryForm.message}
+                    onChange={e => setQueryForm(p => ({ ...p, message: e.target.value }))}
+                    className="rounded-xl min-h-[140px] resize-none"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={querySending}
+                  className="w-full gap-2 font-bold text-base py-6 rounded-xl shadow-md hover:shadow-lg transition-all"
+                  style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}
+                >
+                  {querySending ? (
+                    <><div className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Sending...</>
+                  ) : (
+                    <><Send className="h-4 w-4" /> Send My Query</>
+                  )}
+                </Button>
+                <p className="text-xs text-center text-muted-foreground">
+                  We respect your privacy. Your email will only be used to respond to your query.
+                </p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          CTA BANNER
+      ══════════════════════════════════════ */}
+      <section className="container mx-auto px-4 pb-16">
+        <div className="relative rounded-3xl overflow-hidden text-white p-10 md:p-16 text-center shadow-2xl"
+          style={{ background: 'linear-gradient(135deg, #1a3a2a 0%, #2d6a4f 50%, #52b788 100%)' }}>
+          <div className="absolute top-0 right-0 w-80 h-80 rounded-full opacity-10 pointer-events-none"
+            style={{ background: 'radial-gradient(circle, #b7e4c7, transparent)', transform: 'translate(30%, -30%)' }} />
+          <div className="absolute bottom-0 left-0 w-60 h-60 rounded-full opacity-10 pointer-events-none"
+            style={{ background: 'radial-gradient(circle, #74c69d, transparent)', transform: 'translate(-30%, 30%)' }} />
+          <div className="max-w-2xl mx-auto space-y-5 relative z-10">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto">
+              <Leaf className="h-8 w-8 text-white" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">Ready to start sharing?</h2>
+            <p className="opacity-85 text-sm md:text-base leading-relaxed">
+              Join Community Share Hub today. List your first item in 2 minutes or borrow something your neighbour already owns.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+              <Button size="lg" onClick={() => navigate(user ? '/browse' : '/auth')}
+                className="font-bold text-base px-8 bg-white text-emerald-900 hover:bg-white/90 shadow-lg">
+                {user ? '🌿 Browse Marketplace' : '🌱 Join Now — Free'}
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => navigate('/faq-feedback')}
+                className="font-semibold border-white/35 text-white hover:bg-white/10">
+                <HelpCircle className="h-4 w-4 mr-2" /> FAQs & Feedback
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </MainLayout>
   );
 };

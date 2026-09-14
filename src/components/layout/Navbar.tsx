@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Leaf, Menu, X, Package, Search, Plus, ClipboardList, Settings, LogOut, Shield, Home, MessageSquare, User, Volume2, VolumeX, Globe } from 'lucide-react';
+import { Leaf, Menu, X, Package, Search, Plus, ClipboardList, Settings, LogOut, Shield, Home, MessageSquare, User, Volume2, VolumeX, Globe, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +36,7 @@ export const Navbar = () => {
   const navLinks = [
     { to: '/', label: t('home'), icon: Home },
     { to: '/browse', label: t('browse'), icon: Search },
+    { to: '/faq-feedback', label: 'FAQs & Feedback', icon: HelpCircle },
     { to: '/my-items', label: t('myItems'), icon: Package, protected: true },
     { to: '/add-item', label: t('listItem'), icon: Plus, protected: true },
     { to: '/requests', label: t('requests'), icon: ClipboardList, protected: true },

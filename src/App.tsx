@@ -18,6 +18,7 @@ import Requests from "./pages/Requests";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import FaqFeedback from "./pages/FaqFeedback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/browse" element={<Browse />} />
+                <Route path="/faq-feedback" element={<FaqFeedback />} />
                 <Route path="/item/:id" element={<ItemDetail />} />
                 <Route path="/add-item" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
                 <Route path="/edit-item/:id" element={<ProtectedRoute><EditItem /></ProtectedRoute>} />
