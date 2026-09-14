@@ -297,41 +297,79 @@ const Index = () => {
               </div>
             </div>
 
-            {/* ── RIGHT: Real Item Image Cards with Float Animations ── */}
-            <div className="hidden lg:grid grid-cols-2 gap-4">
-              {heroItems.map((item, i) => (
-                <div key={i}
-                  onClick={() => navigate('/browse')}
-                  className={`rounded-2xl border border-white/20 shadow-xl cursor-pointer overflow-hidden group animate-float-${i + 1}`}
-                  style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    backdropFilter: 'blur(14px)',
-                    marginTop: i % 2 === 1 ? '28px' : '0'
-                  }}>
-                  {/* Image */}
-                  <div className="relative h-40 overflow-hidden">
-                    <img src={item.img} alt={item.label}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    {/* Status pill */}
-                    <div className={`absolute top-2.5 right-2.5 text-[10px] px-2.5 py-1 rounded-full font-bold shadow ${item.status === 'Available' ? 'bg-emerald-500 text-white' : 'bg-amber-400 text-black'}`}>
-                      ● {item.status}
+            {/* ── RIGHT: Real Item Image Cards with Dynamic Up & Down Float Flow ── */}
+            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto lg:max-w-none w-full">
+              {/* Column 1: Drill & Gaming Controller (Glides Up & Down) */}
+              <div className="space-y-4 animate-float-col-1">
+                {[heroItems[0], heroItems[2]].map((item, idx) => (
+                  <div key={idx}
+                    onClick={() => navigate('/browse')}
+                    className="rounded-2xl border border-white/25 shadow-2xl cursor-pointer overflow-hidden group transition-all duration-300 hover:scale-[1.03] hover:border-emerald-300/60"
+                    style={{
+                      background: 'rgba(255,255,255,0.12)',
+                      backdropFilter: 'blur(16px)',
+                    }}>
+                    {/* Image */}
+                    <div className="relative h-36 sm:h-40 overflow-hidden">
+                      <img src={item.img} alt={item.label}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                      {/* Status pill */}
+                      <div className="absolute top-2.5 right-2.5 text-[10px] px-2.5 py-1 rounded-full font-bold shadow bg-emerald-500 text-white flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> {item.status}
+                      </div>
+                      {/* Category chip */}
+                      <div className="absolute bottom-2.5 left-2.5 text-[10px] px-2 py-0.5 rounded-full bg-black/50 text-white/95 backdrop-blur-sm font-medium">
+                        {item.cat}
+                      </div>
                     </div>
-                    {/* Category chip */}
-                    <div className="absolute bottom-2.5 left-2.5 text-[10px] px-2 py-0.5 rounded-full bg-black/40 text-white/90 backdrop-blur-sm font-medium">
-                      {item.cat}
+                    {/* Info */}
+                    <div className="p-3.5">
+                      <div className="text-white font-bold text-sm leading-tight truncate">{item.label}</div>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <span className="text-white/60 text-xs">{item.owner}</span>
+                        <span className="text-emerald-300 text-xs font-bold">{item.price}</span>
+                      </div>
                     </div>
                   </div>
-                  {/* Info */}
-                  <div className="p-3.5">
-                    <div className="text-white font-bold text-sm leading-tight truncate">{item.label}</div>
-                    <div className="flex items-center justify-between mt-1.5">
-                      <span className="text-white/55 text-xs">{item.owner}</span>
-                      <span className="text-emerald-300 text-xs font-bold">{item.price}</span>
+                ))}
+              </div>
+
+              {/* Column 2: Books & Camera (Glides Down & Up with offset) */}
+              <div className="space-y-4 pt-6 sm:pt-8 animate-float-col-2">
+                {[heroItems[1], heroItems[3]].map((item, idx) => (
+                  <div key={idx}
+                    onClick={() => navigate('/browse')}
+                    className="rounded-2xl border border-white/25 shadow-2xl cursor-pointer overflow-hidden group transition-all duration-300 hover:scale-[1.03] hover:border-emerald-300/60"
+                    style={{
+                      background: 'rgba(255,255,255,0.12)',
+                      backdropFilter: 'blur(16px)',
+                    }}>
+                    {/* Image */}
+                    <div className="relative h-36 sm:h-40 overflow-hidden">
+                      <img src={item.img} alt={item.label}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                      {/* Status pill */}
+                      <div className="absolute top-2.5 right-2.5 text-[10px] px-2.5 py-1 rounded-full font-bold shadow bg-emerald-500 text-white flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> {item.status}
+                      </div>
+                      {/* Category chip */}
+                      <div className="absolute bottom-2.5 left-2.5 text-[10px] px-2 py-0.5 rounded-full bg-black/50 text-white/95 backdrop-blur-sm font-medium">
+                        {item.cat}
+                      </div>
+                    </div>
+                    {/* Info */}
+                    <div className="p-3.5">
+                      <div className="text-white font-bold text-sm leading-tight truncate">{item.label}</div>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <span className="text-white/60 text-xs">{item.owner}</span>
+                        <span className="text-emerald-300 text-xs font-bold">{item.price}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
