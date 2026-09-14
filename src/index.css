@@ -134,6 +134,12 @@
   .animate-float-col-1 { animation: floatColumnUp 5s ease-in-out infinite; }
   .animate-float-col-2 { animation: floatColumnDown 5.2s ease-in-out 0.4s infinite; }
 
+  .animate-rotate-dynamic-1 { animation: dynamicRotate1 6s ease-in-out infinite; }
+  .animate-rotate-dynamic-2 { animation: dynamicRotate2 6.5s ease-in-out 0.5s infinite; }
+  .animate-rotate-dynamic-3 { animation: dynamicRotate3 7s ease-in-out 1s infinite; }
+  .animate-rotate-dynamic-4 { animation: dynamicRotate4 6.2s ease-in-out 1.5s infinite; }
+  .animate-spin-slow        { animation: spinSlow 22s linear infinite; }
+
   .animate-fade-up   { animation: fadeUp 0.6s ease both; }
   .animate-fade-up-2 { animation: fadeUp 0.6s 0.15s ease both; }
   .animate-fade-up-3 { animation: fadeUp 0.6s 0.3s ease both; }
@@ -189,4 +195,33 @@
 @keyframes pulseSlow {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.6; }
+}
+
+@keyframes dynamicRotate1 {
+  0%, 100% { transform: rotate(0deg) translateY(0px); }
+  25%       { transform: rotate(-3.5deg) translateY(-8px); }
+  75%       { transform: rotate(2.5deg) translateY(6px); }
+}
+
+@keyframes dynamicRotate2 {
+  0%, 100% { transform: rotate(0deg) translateY(0px); }
+  25%       { transform: rotate(3.5deg) translateY(8px); }
+  75%       { transform: rotate(-3deg) translateY(-6px); }
+}
+
+@keyframes dynamicRotate3 {
+  0%, 100% { transform: rotate(0deg) translateY(0px); }
+  25%       { transform: rotate(-2.5deg) translateY(6px); }
+  75%       { transform: rotate(3.5deg) translateY(-8px); }
+}
+
+@keyframes dynamicRotate4 {
+  0%, 100% { transform: rotate(0deg) translateY(0px); }
+  25%       { transform: rotate(3deg) translateY(-8px); }
+  75%       { transform: rotate(-2.5deg) translateY(6px); }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }

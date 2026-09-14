@@ -82,6 +82,16 @@ const Index = () => {
   const [queryForm, setQueryForm] = useState({ name: '', email: '', message: '' });
   const [querySending, setQuerySending] = useState(false);
 
+  // Auto-rotating spotlight for 'What is Community Share Hub'
+  const [activePillar, setActivePillar] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActivePillar((prev) => (prev + 1) % 4);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     fetchRecentItems();
   }, []);
@@ -458,65 +468,99 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Visual info cards with Real Uploaded Images */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              {
-                img: '/about/hyperlocal.png',
-                tag: 'Hyperlocal',
-                title: 'Nearby Community',
-                desc: 'Share within your neighbourhood, building, or city with real-time local availability.',
-                tagColor: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
-              },
-              {
-                img: '/about/trust.png',
-                tag: 'Trust & Safety',
-                title: 'Verified & Secure',
-                desc: 'ID-verified member profiles, trust ratings, and security deposit protection.',
-                tagColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-              },
-              {
-                img: '/about/eco.png',
-                tag: 'Eco-First',
-                title: 'Green Planet First',
-                desc: 'Every borrow reduces landfill waste, carbon footprints, and unnecessary over-production.',
-                tagColor: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300'
-              },
-              {
-                img: '/about/save.png',
-                tag: 'Save & Earn',
-                title: 'Save Time & Money',
-                desc: 'Borrow at a fraction of retail prices and earn passive money from items sitting idle in your house.',
-                tagColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-              },
-            ].map((card, i) => (
-              <div
-                key={i}
-                className="p-4 sm:p-5 rounded-2xl border bg-card/95 hover:bg-card shadow-sm hover:shadow-xl hover:border-emerald-400/50 transition-all duration-300 hover:-translate-y-1 space-y-3 group flex flex-col justify-between"
-              >
-                {/* Image Showcase */}
-                <div className="h-36 sm:h-40 rounded-xl overflow-hidden bg-muted/40 flex items-center justify-center p-2.5 relative border border-border/40 group-hover:border-emerald-300/40 transition-colors">
-                  <img
-                    src={card.img}
-                    alt={card.title}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <span className={`absolute top-2.5 left-2.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${card.tagColor} shadow-sm backdrop-blur-sm`}>
-                    {card.tag}
-                  </span>
-                </div>
-                {/* Content */}
-                <div>
-                  <div className="font-extrabold text-base text-foreground group-hover:text-emerald-600 transition-colors">
-                    {card.title}
+          {/* Visual info cards with Real Uploaded Images & Rotating Dynamic Flow */}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                {
+                  img: '/about/hyperlocal.png',
+                  tag: 'Hyperlocal',
+                  title: 'Nearby Community',
+                  desc: 'Share within your neighbourhood, building, or city with real-time local availability.',
+                  tagColor: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
+                },
+                {
+                  img: '/about/trust.png',
+                  tag: 'Trust & Safety',
+                  title: 'Verified & Secure',
+                  desc: 'ID-verified member profiles, trust ratings, and security deposit protection.',
+                  tagColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                },
+                {
+                  img: '/about/eco.png',
+                  tag: 'Eco-First',
+                  title: 'Green Planet First',
+                  desc: 'Every borrow reduces landfill waste, carbon footprints, and unnecessary over-production.',
+                  tagColor: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300'
+                },
+                {
+                  img: '/about/save.png',
+                  tag: 'Save & Earn',
+                  title: 'Save Time & Money',
+                  desc: 'Borrow at a fraction of retail prices and earn passive money from items sitting idle in your house.',
+                  tagColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                },
+              ].map((card, i) => (
+                <div
+                  key={i}
+                  onClick={() => setActivePillar(i)}
+                  className={`p-4 sm:p-5 rounded-2xl border transition-all duration-500 space-y-3 group flex flex-col justify-between cursor-pointer animate-rotate-dynamic-${i + 1} ${
+                    activePillar === i
+                      ? 'bg-card ring-2 ring-emerald-500 shadow-2xl shadow-emerald-500/20 border-emerald-400 scale-[1.02] z-10'
+                      : 'bg-card/90 hover:bg-card border-border/60 hover:border-emerald-400/50 shadow-sm hover:shadow-xl hover:scale-[1.02]'
+                  }`}
+                >
+                  {/* Image Showcase */}
+                  <div className={`h-36 sm:h-40 rounded-xl overflow-hidden flex items-center justify-center p-2.5 relative border transition-all duration-500 ${
+                    activePillar === i ? 'bg-emerald-500/10 border-emerald-400/60' : 'bg-muted/40 border-border/40 group-hover:border-emerald-300/40'
+                  }`}>
+                    <img
+                      src={card.img}
+                      alt={card.title}
+                      className={`w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 ${
+                        activePillar === i ? 'scale-105' : ''
+                      }`}
+                      loading="lazy"
+                    />
+                    <span className={`absolute top-2.5 left-2.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${card.tagColor} shadow-sm backdrop-blur-sm`}>
+                      {card.tag}
+                    </span>
+                    {activePillar === i && (
+                      <span className="absolute top-2.5 right-2.5 text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-md animate-pulse flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" /> Active
+                      </span>
+                    )}
                   </div>
-                  <div className="text-xs text-muted-foreground leading-relaxed mt-1">
-                    {card.desc}
+                  {/* Content */}
+                  <div>
+                    <div className="font-extrabold text-base text-foreground group-hover:text-emerald-600 transition-colors">
+                      {card.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground leading-relaxed mt-1">
+                      {card.desc}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Rotating Dynamic Spotlight Navigation Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+              {['Hyperlocal', 'Trust & Safety', 'Eco-First', 'Save & Earn'].map((name, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActivePillar(idx)}
+                  className={`text-xs px-3 py-1 rounded-full font-medium transition-all flex items-center gap-1.5 ${
+                    activePillar === idx
+                      ? 'bg-emerald-600 text-white shadow-md scale-105 font-bold'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${activePillar === idx ? 'bg-white animate-ping' : 'bg-muted-foreground/50'}`} />
+                  {name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
