@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ItemCard } from '@/components/items/ItemCard';
 import { useToast } from '@/hooks/use-toast';
+import { sampleItems } from '@/data/sampleItems';
 import {
   Leaf, Users, Package, ArrowRight, Recycle, Shield, Clock,
   Wrench, Sprout, Tv, Tent, Utensils, BookOpen, Hammer, Sparkles,
@@ -97,14 +98,23 @@ const Index = () => {
   }, []);
 
   const fetchRecentItems = async () => {
-    const { data } = await supabase
-      .from('items')
-      .select(`id, title, description, image_url, condition, is_available, is_verified,
-        location, max_borrow_days, listing_type, price, categories (name)`)
-      .order('created_at', { ascending: false })
-      .limit(4);
-    if (data) setRecentItems(data as unknown as RecentItem[]);
-    setLoadingItems(false);
+    try {
+      const { data } = await supabase
+        .from('items')
+        .select(`id, title, description, image_url, condition, is_available, is_verified,
+          location, max_borrow_days, listing_type, price, categories (name)`)
+        .order('created_at', { ascending: false })
+        .limit(8);
+      if (data && data.length > 0) {
+        setRecentItems(data as unknown as RecentItem[]);
+      } else {
+        setRecentItems(sampleItems as unknown as RecentItem[]);
+      }
+    } catch {
+      setRecentItems(sampleItems as unknown as RecentItem[]);
+    } finally {
+      setLoadingItems(false);
+    }
   };
 
   const handleQuerySubmit = async (e: React.FormEvent) => {

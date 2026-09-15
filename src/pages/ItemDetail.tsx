@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ItemQuerySection } from '@/components/items/ItemQuerySection';
 import { useAuth } from '@/contexts/AuthContext';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { sampleItems } from '@/data/sampleItems';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -104,6 +105,33 @@ const ItemDetail = () => {
       
       if (profileData) {
         setOwnerProfile(profileData);
+      }
+    } else {
+      // Fallback to sample item if not found in Supabase
+      const sample = sampleItems.find(s => s.id === id);
+      if (sample) {
+        setItem({
+          id: sample.id,
+          title: sample.title,
+          description: sample.description,
+          image_url: sample.image_url,
+          condition: sample.condition,
+          is_available: sample.is_available,
+          is_verified: sample.is_verified,
+          location: sample.location,
+          deposit_amount: sample.deposit_amount,
+          max_borrow_days: sample.max_borrow_days,
+          owner_id: sample.owner_id,
+          listing_type: sample.listing_type,
+          price: sample.price,
+          categories: sample.categories
+        });
+        setOwnerProfile({
+          full_name: sample.owner.full_name,
+          avatar_url: sample.owner.avatar_url,
+          is_verified: sample.owner.is_verified,
+          bio: sample.owner.bio
+        });
       }
     }
     setLoading(false);

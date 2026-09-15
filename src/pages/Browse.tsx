@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Package, X, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { sampleItems } from '@/data/sampleItems';
 
 interface Category {
   id: string;
@@ -61,41 +62,73 @@ const Browse = () => {
   }, [searchParams]);
 
   const fetchCategories = async () => {
-    const { data } = await supabase
-      .from('categories')
-      .select('id, name')
-      .order('name');
-    
-    if (data) setCategories(data);
+    try {
+      const { data } = await supabase
+        .from('categories')
+        .select('id, name')
+        .order('name');
+      
+      if (data && data.length > 0) {
+        setCategories(data);
+      } else {
+        setCategories([
+          { id: 'cat-1', name: 'Tools' },
+          { id: 'cat-2', name: 'Gardening' },
+          { id: 'cat-3', name: 'Electronics' },
+          { id: 'cat-4', name: 'Outdoors' },
+          { id: 'cat-5', name: 'Kitchen' },
+          { id: 'cat-6', name: 'Books' },
+          { id: 'cat-7', name: 'Hardware' },
+          { id: 'cat-8', name: 'Sports' },
+        ]);
+      }
+    } catch {
+      setCategories([
+        { id: 'cat-1', name: 'Tools' },
+        { id: 'cat-2', name: 'Gardening' },
+        { id: 'cat-3', name: 'Electronics' },
+        { id: 'cat-4', name: 'Outdoors' },
+        { id: 'cat-5', name: 'Kitchen' },
+        { id: 'cat-6', name: 'Books' },
+        { id: 'cat-7', name: 'Hardware' },
+        { id: 'cat-8', name: 'Sports' },
+      ]);
+    }
   };
 
   const fetchItems = async () => {
     setLoading(true);
-    
-    const { data, error } = await supabase
-      .from('items')
-      .select(`
-        id,
-        title,
-        description,
-        image_url,
-        condition,
-        is_available,
-        is_verified,
-        location,
-        max_borrow_days,
-        listing_type,
-        price,
-        created_at,
-        owner_id,
-        categories (name)
-      `)
-      .order('created_at', { ascending: false });
-    
-    if (!error && data) {
-      setItems(data as unknown as ItemWithDetails[]);
+    try {
+      const { data, error } = await supabase
+        .from('items')
+        .select(`
+          id,
+          title,
+          description,
+          image_url,
+          condition,
+          is_available,
+          is_verified,
+          location,
+          max_borrow_days,
+          listing_type,
+          price,
+          created_at,
+          owner_id,
+          categories (name)
+        `)
+        .order('created_at', { ascending: false });
+      
+      if (!error && data && data.length > 0) {
+        setItems(data as unknown as ItemWithDetails[]);
+      } else {
+        setItems(sampleItems as unknown as ItemWithDetails[]);
+      }
+    } catch {
+      setItems(sampleItems as unknown as ItemWithDetails[]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const resetFilters = () => {
