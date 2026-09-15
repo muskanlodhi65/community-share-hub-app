@@ -738,38 +738,97 @@ const Index = () => {
       ══════════════════════════════════════ */}
       <section className="py-20 border-y" style={{ background: 'linear-gradient(180deg, hsl(var(--muted)/0.5) 0%, hsl(var(--background)) 100%)' }}>
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
             <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400">
               Step-by-Step Guide
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">How It Works</h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              From sign-up to first borrow — here's exactly how Community Share Hub works.
+              From sign-up to first borrow — follow our seamless 6-step community sharing cycle.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Sequential Dynamic Step Progression Flow Bar */}
+          <div className="hidden md:flex items-center justify-center gap-2 mb-12 flex-wrap">
+            {steps.map((s, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card border shadow-xs text-xs font-bold hover:border-emerald-400 transition-colors">
+                  <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-black">
+                    {s.number}
+                  </span>
+                  <span className="text-foreground">{s.title}</span>
+                </div>
+                {idx < steps.length - 1 && (
+                  <ArrowRight className="h-4 w-4 text-emerald-600 animate-arrow-glide flex-shrink-0" />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Step Cards with Dynamic Directional Arrows */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 relative">
             {steps.map((step, i) => (
-              <div key={i} className="relative p-6 rounded-2xl bg-card border hover:shadow-xl hover:-translate-y-1 transition-all duration-300 space-y-4 overflow-hidden group">
+              <div key={i} className="relative flex flex-col justify-between p-6 rounded-2xl bg-card border hover:shadow-2xl hover:border-emerald-400/60 hover:-translate-y-1.5 transition-all duration-300 space-y-4 group">
                 {/* Background number watermark */}
                 <div className="absolute -right-3 -top-3 text-[7rem] font-black opacity-[0.04] select-none pointer-events-none leading-none" style={{ color: '#2d6a4f' }}>
                   {step.number}
                 </div>
-                {/* Step number badge */}
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
-                    style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}>
-                    {step.number}
+
+                {/* Header: Step Badge + Sequential 'Next Step' Arrow Indicator */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
+                      style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}>
+                      {step.number}
+                    </div>
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-muted group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/40 transition-colors">
+                      <step.icon className="h-4 w-4 text-emerald-600" />
+                    </div>
                   </div>
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-muted group-hover:bg-emerald-50 transition-colors">
-                    <step.icon className="h-4 w-4 text-emerald-600" />
-                  </div>
+
+                  {/* Dynamic 'Next Step' flow tag */}
+                  {i < steps.length - 1 ? (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-500/20 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                      <span>Then Step {steps[i + 1].number}</span>
+                      <ArrowRight className="h-3.5 w-3.5 animate-arrow-glide" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-bold shadow-sm">
+                      <RotateCcw className="h-3 w-3 animate-spin-slow" /> Endless Cycle
+                    </div>
+                  )}
                 </div>
-                <h3 className="font-extrabold text-lg">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-                <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-full w-fit">
+
+                {/* Step Body */}
+                <div className="space-y-2">
+                  <h3 className="font-extrabold text-lg text-foreground group-hover:text-emerald-600 transition-colors">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {step.desc}
+                  </p>
+                </div>
+
+                {/* Footer Tip */}
+                <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-full w-fit">
                   <Zap className="h-3 w-3" /> {step.tip}
                 </div>
+
+                {/* ── Dynamic Inter-Card Connecting Arrows on Desktop ── */}
+                {/* Horizontal arrows between columns 1->2 and 2->3 */}
+                {(i === 0 || i === 1 || i === 3 || i === 4) && (
+                  <div className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-emerald-600 text-white shadow-lg items-center justify-center border-2 border-background animate-arrow-glide pointer-events-none">
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
+                )}
+
+                {/* Downward arrow connecting Row 1 (Step 03) to Row 2 (Step 04) */}
+                {i === 2 && (
+                  <div className="hidden lg:flex absolute -bottom-4 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-emerald-600 text-white shadow-lg items-center gap-1 text-[11px] font-bold border-2 border-background animate-arrow-glide-down pointer-events-none">
+                    <span>Next Row</span>
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </div>
+                )}
               </div>
             ))}
           </div>
