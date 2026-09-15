@@ -263,6 +263,43 @@ const Index = () => {
     <MainLayout>
 
       {/* ══════════════════════════════════════
+          TOP FEATURED VIDEO SHOWCASE
+      ══════════════════════════════════════ */}
+      <section className="bg-slate-950 text-white relative overflow-hidden border-b border-emerald-900/40">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/30 via-slate-950 to-slate-950 pointer-events-none" />
+        
+        <div className="container mx-auto px-4 py-8 sm:py-12 relative z-10">
+          <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-6 space-y-2.5">
+            <Badge className="px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border-emerald-500/30 gap-1.5 backdrop-blur-sm shadow-sm">
+              <Sparkles className="h-3.5 w-3.5 text-emerald-400" /> Watch: Community Share Hub in Action
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
+              Discover How <span className="text-emerald-400">Community Sharing</span> Works
+            </h2>
+            <p className="text-white/70 text-xs sm:text-sm max-w-xl">
+              Borrow tools, books, and gear from neighbours. Save money, reduce waste, and build a connected community.
+            </p>
+          </div>
+
+          {/* Video Player Box with Ambient Glow */}
+          <div className="max-w-4xl mx-auto relative group">
+            <div className="absolute -inset-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition duration-700" />
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-black">
+              <video
+                src="/community-share-hub-video.mp4"
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-auto max-h-[500px] object-cover mx-auto"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
           HERO SECTION — Real Item Images
       ══════════════════════════════════════ */}
       <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a3a2a 0%, #2d6a4f 45%, #52b788 100%)' }}>
