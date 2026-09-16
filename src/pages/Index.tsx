@@ -179,40 +179,148 @@ const Index = () => {
 
   const steps = [
     {
-      number: '01', icon: LogIn,
+      number: '01',
+      icon: LogIn,
       title: 'Sign Up Free',
       desc: 'Create your free account in 60 seconds. Verify your email and phone to get your trusted member badge.',
-      tip: 'No credit card required'
+      tip: 'No credit card required',
+      theme: {
+        cardBorder: 'border-emerald-500/35 hover:border-emerald-400 dark:border-emerald-500/25',
+        cardBg: 'from-emerald-500/[0.08] via-emerald-500/[0.02] to-card',
+        badgeGrad: 'linear-gradient(135deg, #059669, #10b981)',
+        badgeBg: 'bg-emerald-600',
+        watermark: '#10b981',
+        iconBg: 'bg-emerald-500/10 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400',
+        iconHover: 'group-hover:bg-emerald-500/20',
+        iconText: 'text-emerald-600 dark:text-emerald-400',
+        titleHover: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
+        nextTag: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20 group-hover:bg-emerald-600 group-hover:text-white',
+        tipBg: 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border-emerald-500/20',
+        arrowBg: 'bg-emerald-600',
+        timelineBorder: 'hover:border-emerald-400',
+        timelineBadge: 'bg-emerald-600',
+        accentGlow: 'hover:shadow-emerald-500/15',
+      }
     },
     {
-      number: '02', icon: Search,
+      number: '02',
+      icon: Search,
       title: 'Browse or List',
       desc: 'Search for items you need in your community, or list items you own to share with others. Both are completely free.',
-      tip: 'Filter by category, location & availability'
+      tip: 'Filter by category, location & availability',
+      theme: {
+        cardBorder: 'border-sky-500/35 hover:border-sky-400 dark:border-sky-500/25',
+        cardBg: 'from-sky-500/[0.08] via-sky-500/[0.02] to-card',
+        badgeGrad: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+        badgeBg: 'bg-sky-600',
+        watermark: '#0284c7',
+        iconBg: 'bg-sky-500/10 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400',
+        iconHover: 'group-hover:bg-sky-500/20',
+        iconText: 'text-sky-600 dark:text-sky-400',
+        titleHover: 'group-hover:text-sky-600 dark:group-hover:text-sky-400',
+        nextTag: 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/20 group-hover:bg-sky-600 group-hover:text-white',
+        tipBg: 'text-sky-700 dark:text-sky-300 bg-sky-500/10 border-sky-500/20',
+        arrowBg: 'bg-sky-600',
+        timelineBorder: 'hover:border-sky-400',
+        timelineBadge: 'bg-sky-600',
+        accentGlow: 'hover:shadow-sky-500/15',
+      }
     },
     {
-      number: '03', icon: MessageSquare,
+      number: '03',
+      icon: MessageSquare,
       title: 'Request & Connect',
       desc: 'Found something you need? Send a borrow request with your preferred dates. The owner gets notified instantly.',
-      tip: 'Message the owner directly'
+      tip: 'Message the owner directly',
+      theme: {
+        cardBorder: 'border-purple-500/35 hover:border-purple-400 dark:border-purple-500/25',
+        cardBg: 'from-purple-500/[0.08] via-purple-500/[0.02] to-card',
+        badgeGrad: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+        badgeBg: 'bg-purple-600',
+        watermark: '#7c3aed',
+        iconBg: 'bg-purple-500/10 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400',
+        iconHover: 'group-hover:bg-purple-500/20',
+        iconText: 'text-purple-600 dark:text-purple-400',
+        titleHover: 'group-hover:text-purple-600 dark:group-hover:text-purple-400',
+        nextTag: 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20 group-hover:bg-purple-600 group-hover:text-white',
+        tipBg: 'text-purple-700 dark:text-purple-300 bg-purple-500/10 border-purple-500/20',
+        arrowBg: 'bg-purple-600',
+        timelineBorder: 'hover:border-purple-400',
+        timelineBadge: 'bg-purple-600',
+        accentGlow: 'hover:shadow-purple-500/15',
+      }
     },
     {
-      number: '04', icon: HandshakeIcon,
+      number: '04',
+      icon: HandshakeIcon,
       title: 'Pick Up & Use',
       desc: 'Once approved, arrange a convenient pickup. Inspect the item together, use it for your project, and enjoy the savings!',
-      tip: 'Agree on condition at handover'
+      tip: 'Agree on condition at handover',
+      theme: {
+        cardBorder: 'border-amber-500/35 hover:border-amber-400 dark:border-amber-500/25',
+        cardBg: 'from-amber-500/[0.08] via-amber-500/[0.02] to-card',
+        badgeGrad: 'linear-gradient(135deg, #d97706, #f59e0b)',
+        badgeBg: 'bg-amber-600',
+        watermark: '#d97706',
+        iconBg: 'bg-amber-500/10 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400',
+        iconHover: 'group-hover:bg-amber-500/20',
+        iconText: 'text-amber-600 dark:text-amber-400',
+        titleHover: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
+        nextTag: 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20 group-hover:bg-amber-600 group-hover:text-white',
+        tipBg: 'text-amber-700 dark:text-amber-300 bg-amber-500/10 border-amber-500/20',
+        arrowBg: 'bg-amber-600',
+        timelineBorder: 'hover:border-amber-400',
+        timelineBadge: 'bg-amber-600',
+        accentGlow: 'hover:shadow-amber-500/15',
+      }
     },
     {
-      number: '05', icon: RotateCcw,
+      number: '05',
+      icon: RotateCcw,
       title: 'Return & Review',
       desc: 'Return the item on time in the same condition. Leave an honest review to build trust in the community.',
-      tip: 'Good reviews unlock better listings'
+      tip: 'Good reviews unlock better listings',
+      theme: {
+        cardBorder: 'border-rose-500/35 hover:border-rose-400 dark:border-rose-500/25',
+        cardBg: 'from-rose-500/[0.08] via-rose-500/[0.02] to-card',
+        badgeGrad: 'linear-gradient(135deg, #e11d48, #fb7185)',
+        badgeBg: 'bg-rose-600',
+        watermark: '#e11d48',
+        iconBg: 'bg-rose-500/10 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400',
+        iconHover: 'group-hover:bg-rose-500/20',
+        iconText: 'text-rose-600 dark:text-rose-400',
+        titleHover: 'group-hover:text-rose-600 dark:group-hover:text-rose-400',
+        nextTag: 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20 group-hover:bg-rose-600 group-hover:text-white',
+        tipBg: 'text-rose-700 dark:text-rose-300 bg-rose-500/10 border-rose-500/20',
+        arrowBg: 'bg-rose-600',
+        timelineBorder: 'hover:border-rose-400',
+        timelineBadge: 'bg-rose-600',
+        accentGlow: 'hover:shadow-rose-500/15',
+      }
     },
     {
-      number: '06', icon: ThumbsUp,
+      number: '06',
+      icon: ThumbsUp,
       title: 'Repeat & Grow',
       desc: 'The more you share and borrow, the stronger your community becomes. Invite neighbours to multiply the benefit!',
-      tip: 'Referrals unlock special perks'
+      tip: 'Referrals unlock special perks',
+      theme: {
+        cardBorder: 'border-indigo-500/35 hover:border-indigo-400 dark:border-indigo-500/25',
+        cardBg: 'from-indigo-500/[0.08] via-indigo-500/[0.02] to-card',
+        badgeGrad: 'linear-gradient(135deg, #4f46e5, #818cf8)',
+        badgeBg: 'bg-indigo-600',
+        watermark: '#4f46e5',
+        iconBg: 'bg-indigo-500/10 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400',
+        iconHover: 'group-hover:bg-indigo-500/20',
+        iconText: 'text-indigo-600 dark:text-indigo-400',
+        titleHover: 'group-hover:text-indigo-600 dark:group-hover:text-indigo-400',
+        nextTag: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/20 group-hover:bg-indigo-600 group-hover:text-white',
+        tipBg: 'text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 border-indigo-500/20',
+        arrowBg: 'bg-indigo-600',
+        timelineBorder: 'hover:border-indigo-400',
+        timelineBadge: 'bg-indigo-600',
+        accentGlow: 'hover:shadow-indigo-500/15',
+      }
     },
   ];
 
@@ -762,56 +870,66 @@ const Index = () => {
           <div className="hidden md:flex items-center justify-center gap-2 mb-12 flex-wrap">
             {steps.map((s, idx) => (
               <div key={idx} className="flex items-center gap-2">
-                <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card border shadow-xs text-xs font-bold hover:border-emerald-400 transition-colors">
-                  <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-black">
+                <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card border shadow-xs text-xs font-bold ${s.theme.timelineBorder} transition-colors`}>
+                  <span className={`w-5 h-5 rounded-full ${s.theme.timelineBadge} text-white text-[10px] flex items-center justify-center font-black shadow-xs`}>
                     {s.number}
                   </span>
                   <span className="text-foreground">{s.title}</span>
                 </div>
                 {idx < steps.length - 1 && (
-                  <ArrowRight className="h-4 w-4 text-emerald-600 animate-arrow-glide flex-shrink-0" />
+                  <ArrowRight className={`h-4 w-4 ${s.theme.iconText} animate-arrow-glide flex-shrink-0`} />
                 )}
               </div>
             ))}
           </div>
 
-          {/* Step Cards with Dynamic Directional Arrows */}
+          {/* Step Cards with Dynamic Directional Arrows & Unique Per-Box Colors */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 relative">
             {steps.map((step, i) => (
-              <div key={i} className="relative flex flex-col justify-between p-6 rounded-2xl bg-card border hover:shadow-2xl hover:border-emerald-400/60 hover:-translate-y-1.5 transition-all duration-300 space-y-4 group">
-                {/* Background number watermark */}
-                <div className="absolute -right-3 -top-3 text-[7rem] font-black opacity-[0.04] select-none pointer-events-none leading-none" style={{ color: '#2d6a4f' }}>
-                  {step.number}
+              <div
+                key={i}
+                className={`relative flex flex-col justify-between p-6 rounded-2xl bg-card bg-gradient-to-b ${step.theme.cardBg} border ${step.theme.cardBorder} hover:shadow-2xl ${step.theme.accentGlow} hover:-translate-y-1.5 transition-all duration-300 space-y-4 group`}
+              >
+                {/* Background number watermark (isolated in overflow-hidden container so connecting arrows aren't clipped) */}
+                <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                  <div
+                    className="absolute -right-3 -top-3 text-[7.5rem] font-black opacity-[0.08] select-none leading-none transition-transform group-hover:scale-105 duration-300"
+                    style={{ color: step.theme.watermark }}
+                  >
+                    {step.number}
+                  </div>
                 </div>
 
                 {/* Header: Step Badge + Sequential 'Next Step' Arrow Indicator */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
-                      style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}>
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md transition-transform group-hover:scale-105 duration-200"
+                      style={{ background: step.theme.badgeGrad }}
+                    >
                       {step.number}
                     </div>
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-muted group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/40 transition-colors">
-                      <step.icon className="h-4 w-4 text-emerald-600" />
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${step.theme.iconBg} ${step.theme.iconHover} transition-colors`}>
+                      <step.icon className={`h-4 w-4 ${step.theme.iconText}`} />
                     </div>
                   </div>
 
                   {/* Dynamic 'Next Step' flow tag */}
                   {i < steps.length - 1 ? (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-500/20 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all ${step.theme.nextTag}`}>
                       <span>Then Step {steps[i + 1].number}</span>
                       <ArrowRight className="h-3.5 w-3.5 animate-arrow-glide" />
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-bold shadow-sm">
+                    <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full ${step.theme.badgeBg} text-white text-[11px] font-bold shadow-sm`}>
                       <RotateCcw className="h-3 w-3 animate-spin-slow" /> Endless Cycle
                     </div>
                   )}
                 </div>
 
                 {/* Step Body */}
-                <div className="space-y-2">
-                  <h3 className="font-extrabold text-lg text-foreground group-hover:text-emerald-600 transition-colors">
+                <div className="space-y-2 relative z-10">
+                  <h3 className={`font-extrabold text-lg text-foreground ${step.theme.titleHover} transition-colors`}>
                     {step.title}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -820,21 +938,21 @@ const Index = () => {
                 </div>
 
                 {/* Footer Tip */}
-                <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-full w-fit">
+                <div className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full w-fit border ${step.theme.tipBg} relative z-10`}>
                   <Zap className="h-3 w-3" /> {step.tip}
                 </div>
 
                 {/* ── Dynamic Inter-Card Connecting Arrows on Desktop ── */}
                 {/* Horizontal arrows between columns 1->2 and 2->3 */}
                 {(i === 0 || i === 1 || i === 3 || i === 4) && (
-                  <div className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-emerald-600 text-white shadow-lg items-center justify-center border-2 border-background animate-arrow-glide pointer-events-none">
+                  <div className={`hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full ${step.theme.arrowBg} text-white shadow-lg items-center justify-center border-2 border-background animate-arrow-glide pointer-events-none`}>
                     <ArrowRight className="h-4 w-4" />
                   </div>
                 )}
 
                 {/* Downward arrow connecting Row 1 (Step 03) to Row 2 (Step 04) */}
                 {i === 2 && (
-                  <div className="hidden lg:flex absolute -bottom-4 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-emerald-600 text-white shadow-lg items-center gap-1 text-[11px] font-bold border-2 border-background animate-arrow-glide-down pointer-events-none">
+                  <div className={`hidden lg:flex absolute -bottom-4 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full ${step.theme.arrowBg} text-white shadow-lg items-center gap-1 text-[11px] font-bold border-2 border-background animate-arrow-glide-down pointer-events-none`}>
                     <span>Next Row</span>
                     <ChevronDown className="h-3.5 w-3.5" />
                   </div>
