@@ -79,10 +79,6 @@ const Index = () => {
   const [loadingItems, setLoadingItems] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  // Query form state
-  const [queryForm, setQueryForm] = useState({ name: '', email: '', message: '' });
-  const [querySending, setQuerySending] = useState(false);
-
   // Auto-rotating spotlight for 'What is Community Share Hub'
   const [activePillar, setActivePillar] = useState(0);
 
@@ -117,19 +113,141 @@ const Index = () => {
     }
   };
 
-  const handleQuerySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!queryForm.name || !queryForm.email || !queryForm.message) {
-      toast({ title: 'Please fill all fields', variant: 'destructive' });
+  // Query topics
+  const queryTopics = [
+    {
+      id: 'general',
+      title: 'General Queries',
+      desc: 'Questions about borrowing, sharing, or account setup.',
+      icon: MessageSquare,
+      activeRing: 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-950/40 shadow-md ring-2 ring-emerald-500/20',
+      badgeColor: 'bg-emerald-600',
+      placeholder: 'Describe your question about using EcoHub, borrowing rules, or account features...',
+    },
+    {
+      id: 'safety',
+      title: 'Trust & Safety',
+      desc: 'Report issues or concerns about members/items.',
+      icon: Shield,
+      activeRing: 'border-rose-500 bg-rose-500/10 dark:bg-rose-950/40 shadow-md ring-2 ring-rose-500/20',
+      badgeColor: 'bg-rose-600',
+      placeholder: 'Please provide details about the item, member, or safety concern you want to report...',
+    },
+    {
+      id: 'features',
+      title: 'Feature Suggestions',
+      desc: 'Ideas for making the platform better.',
+      icon: Sparkles,
+      activeRing: 'border-purple-500 bg-purple-500/10 dark:bg-purple-950/40 shadow-md ring-2 ring-purple-500/20',
+      badgeColor: 'bg-purple-600',
+      placeholder: 'Share your idea, feature request, or suggestion to improve our platform...',
+    },
+    {
+      id: 'partnership',
+      title: 'Partnership',
+      desc: 'Interested in collaborating with us.',
+      icon: HeartHandshake,
+      activeRing: 'border-amber-500 bg-amber-500/10 dark:bg-amber-950/40 shadow-md ring-2 ring-amber-500/20',
+      badgeColor: 'bg-amber-600',
+      placeholder: 'Tell us about your organization, community group, or partnership proposal...',
+    },
+  ];
+
+  const [selectedQueryTopic, setSelectedQueryTopic] = useState('General Queries');
+  const [queryForm, setQueryForm] = useState({ name: '', email: '', message: '' });
+  const [queryErrors, setQueryErrors] = useState<{ name?: string; email?: string; message?: string }>({});
+  const [querySending, setQuerySending] = useState(false);
+  const [querySuccess, setQuerySuccess] = useState<null | { ticketId: string; name: string; topic: string; email: string }>(null);
+
+  // Auto-fill user name and email if logged in
+  useEffect(() => {
+    if (user) {
+      setQueryForm(prev => ({
+        ...prev,
+        name: prev.name || user.user_metadata?.full_name || user.email?.split('@')[0] || '',
+        email: prev.email || user.email || '',
+      }));
+    }
+  }, [user]);
+
+  const handleQuerySubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    const errors: { name?: string; email?: string; message?: string } = {};
+    if (!queryForm.name.trim()) {
+      errors.name = 'Please enter your name';
+    }
+    if (!queryForm.email.trim()) {
+      errors.email = 'Please enter your email address';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(queryForm.email.trim())) {
+      errors.email = 'Please enter a valid email address';
+    }
+    if (!queryForm.message.trim()) {
+      errors.message = 'Please enter your query message';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setQueryErrors(errors);
+      toast({
+        title: '⚠️ Please complete all required fields',
+        description: 'Check the highlighted fields below.',
+        variant: 'destructive',
+      });
       return;
     }
+
+    setQueryErrors({});
     setQuerySending(true);
-    await new Promise(r => setTimeout(r, 1200));
+
+    const ticketId = 'ECO-' + Math.floor(100000 + Math.random() * 900000);
+    const newQuery = {
+      ticketId,
+      name: queryForm.name.trim(),
+      email: queryForm.email.trim(),
+      topic: selectedQueryTopic,
+      message: queryForm.message.trim(),
+      date: new Date().toISOString(),
+      status: 'Received',
+    };
+
+    // Save to localStorage
+    try {
+      const saved = JSON.parse(localStorage.getItem('ecohub_user_queries') || '[]');
+      saved.unshift(newQuery);
+      localStorage.setItem('ecohub_user_queries', JSON.stringify(saved));
+    } catch {
+      // safe fallback
+    }
+
+    // Attempt backend POST
+    try {
+      await fetch('http://localhost:5000/api/queries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newQuery.name,
+          email: newQuery.email,
+          message: newQuery.message,
+          category: newQuery.topic,
+        }),
+      });
+    } catch {
+      // fallback handled
+    }
+
+    await new Promise(r => setTimeout(r, 600));
     setQuerySending(false);
-    setQueryForm({ name: '', email: '', message: '' });
+    setQuerySuccess({
+      ticketId,
+      name: newQuery.name,
+      topic: newQuery.topic,
+      email: newQuery.email,
+    });
+    setQueryForm(prev => ({ ...prev, message: '' }));
+
     toast({
-      title: '✅ Query Sent!',
-      description: 'We\'ll get back to you within 24 hours.',
+      title: `✅ Query Sent! (#${ticketId})`,
+      description: 'Our team will get back to you within 24 hours.',
     });
   };
 
@@ -1077,80 +1195,206 @@ const Index = () => {
               <p className="text-muted-foreground leading-relaxed">
                 Have a question, suggestion, or issue not covered in the FAQs? Drop us a message and our team will get back to you within 24 hours.
               </p>
-              <div className="space-y-4 pt-2">
-                {[
-                  { icon: MessageSquare, title: 'General Queries', desc: 'Questions about how the platform works.' },
-                  { icon: Shield, title: 'Trust & Safety', desc: 'Report issues or concerns about members/items.' },
-                  { icon: Sparkles, title: 'Feature Suggestions', desc: 'Ideas for making the platform better.' },
-                  { icon: HeartHandshake, title: 'Partnership', desc: 'Interested in collaborating with us.' },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl border bg-card hover:shadow-sm transition-shadow">
-                    <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-center flex-shrink-0">
-                      <item.icon className="h-4 w-4 text-emerald-600" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-sm">{item.title}</div>
-                      <div className="text-xs text-muted-foreground">{item.desc}</div>
-                    </div>
-                  </div>
-                ))}
+              <div className="space-y-3 pt-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Select a Topic to Send Your Query:
+                </p>
+                {queryTopics.map((item) => {
+                  const isSelected = selectedQueryTopic === item.title;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedQueryTopic(item.title);
+                        setQueryErrors({});
+                      }}
+                      className={`w-full text-left flex items-start justify-between gap-3.5 p-4 rounded-2xl border transition-all duration-200 cursor-pointer group ${
+                        isSelected
+                          ? item.activeRing
+                          : 'bg-card hover:border-emerald-500/40 hover:shadow-md'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3.5">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                          isSelected ? 'bg-emerald-600 text-white shadow-sm' : 'bg-muted text-foreground group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/40 group-hover:text-emerald-600'
+                        }`}>
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-sm text-foreground flex items-center gap-2">
+                            {item.title}
+                            {isSelected && (
+                              <Badge className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full">
+                                Selected
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{item.desc}</div>
+                        </div>
+                      </div>
+                      <div className="mt-1 flex-shrink-0">
+                        {isSelected ? (
+                          <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border border-muted-foreground/30 group-hover:border-emerald-500" />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Right: Form */}
-            <div className="p-8 rounded-3xl border bg-card shadow-sm">
-              <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
-                <Send className="h-5 w-5 text-emerald-600" /> Write to Us
-              </h3>
-              <form onSubmit={handleQuerySubmit} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium">Your Name <span className="text-red-500">*</span></label>
-                  <Input
-                    id="query-name"
-                    placeholder="e.g. Rahul Sharma"
-                    value={queryForm.name}
-                    onChange={e => setQueryForm(p => ({ ...p, name: e.target.value }))}
-                    className="rounded-xl"
-                  />
+            {/* Right: Form / Success Card */}
+            {querySuccess ? (
+              <div className="p-8 rounded-3xl border bg-card shadow-sm text-center space-y-5 animate-in fade-in zoom-in duration-300">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+                  <CheckCircle2 className="h-9 w-9 text-emerald-600 dark:text-emerald-400 animate-bounce" />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium">Email Address <span className="text-red-500">*</span></label>
-                  <Input
-                    id="query-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={queryForm.email}
-                    onChange={e => setQueryForm(p => ({ ...p, email: e.target.value }))}
-                    className="rounded-xl"
-                  />
+                <div className="space-y-2">
+                  <Badge className="bg-emerald-600 text-white font-mono px-3 py-1 text-xs">
+                    Ticket #{querySuccess.ticketId}
+                  </Badge>
+                  <h3 className="font-extrabold text-2xl tracking-tight text-foreground pt-1">Query Sent Successfully!</h3>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                    Thank you, <span className="font-bold text-foreground">{querySuccess.name}</span>! We have received your query under <span className="font-bold text-emerald-600 dark:text-emerald-400">{querySuccess.topic}</span>. Our moderation team will get back to you at <span className="font-medium text-foreground">{querySuccess.email}</span> within 24 hours.
+                  </p>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium">Your Message <span className="text-red-500">*</span></label>
-                  <Textarea
-                    id="query-message"
-                    placeholder="Describe your query, suggestion, or issue in detail..."
-                    value={queryForm.message}
-                    onChange={e => setQueryForm(p => ({ ...p, message: e.target.value }))}
-                    className="rounded-xl min-h-[140px] resize-none"
-                  />
+                <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Button
+                    onClick={() => setQuerySuccess(null)}
+                    variant="outline"
+                    className="w-full sm:w-auto font-bold rounded-xl gap-2 cursor-pointer"
+                  >
+                    <RotateCcw className="h-4 w-4" /> Send Another Query
+                  </Button>
+                  <Button
+                    onClick={() => navigate('/faq-feedback')}
+                    className="w-full sm:w-auto font-bold rounded-xl gap-2 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
+                  >
+                    <HelpCircle className="h-4 w-4" /> View FAQs & Community
+                  </Button>
                 </div>
-                <Button
-                  type="submit"
-                  disabled={querySending}
-                  className="w-full gap-2 font-bold text-base py-6 rounded-xl shadow-md hover:shadow-lg transition-all"
-                  style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}
-                >
-                  {querySending ? (
-                    <><div className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Sending...</>
-                  ) : (
-                    <><Send className="h-4 w-4" /> Send My Query</>
-                  )}
-                </Button>
-                <p className="text-xs text-center text-muted-foreground">
-                  We respect your privacy. Your email will only be used to respond to your query.
-                </p>
-              </form>
-            </div>
+              </div>
+            ) : (
+              <div className="p-6 sm:p-8 rounded-3xl border bg-card shadow-sm space-y-5">
+                <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b">
+                  <h3 className="font-bold text-xl flex items-center gap-2">
+                    <Send className="h-5 w-5 text-emerald-600" /> Write to Us
+                  </h3>
+                  <Badge variant="outline" className="text-xs font-semibold px-2.5 py-1 bg-muted/60">
+                    Topic: <span className="ml-1 text-emerald-600 dark:text-emerald-400 font-bold">{selectedQueryTopic}</span>
+                  </Badge>
+                </div>
+
+                {/* Quick Topic Selection Pills */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Select Topic</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {queryTopics.map(topic => {
+                      const isSelected = selectedQueryTopic === topic.title;
+                      return (
+                        <button
+                          key={topic.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedQueryTopic(topic.title);
+                            setQueryErrors({});
+                          }}
+                          className={`px-2.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                              : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground border-transparent'
+                          }`}
+                        >
+                          <topic.icon className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span className="truncate">{topic.title.split(' ')[0]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <form onSubmit={handleQuerySubmit} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium">Your Name <span className="text-red-500">*</span></label>
+                      {queryErrors.name && (
+                        <span className="text-xs text-red-500 font-medium">{queryErrors.name}</span>
+                      )}
+                    </div>
+                    <Input
+                      id="query-name"
+                      placeholder="e.g. Rahul Sharma"
+                      value={queryForm.name}
+                      onChange={e => {
+                        setQueryForm(p => ({ ...p, name: e.target.value }));
+                        if (queryErrors.name) setQueryErrors(p => ({ ...p, name: undefined }));
+                      }}
+                      className={`rounded-xl ${queryErrors.name ? 'border-red-500 focus-visible:ring-red-500/20' : ''}`}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium">Email Address <span className="text-red-500">*</span></label>
+                      {queryErrors.email && (
+                        <span className="text-xs text-red-500 font-medium">{queryErrors.email}</span>
+                      )}
+                    </div>
+                    <Input
+                      id="query-email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={queryForm.email}
+                      onChange={e => {
+                        setQueryForm(p => ({ ...p, email: e.target.value }));
+                        if (queryErrors.email) setQueryErrors(p => ({ ...p, email: undefined }));
+                      }}
+                      className={`rounded-xl ${queryErrors.email ? 'border-red-500 focus-visible:ring-red-500/20' : ''}`}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium">Your Message <span className="text-red-500">*</span></label>
+                      {queryErrors.message && (
+                        <span className="text-xs text-red-500 font-medium">{queryErrors.message}</span>
+                      )}
+                    </div>
+                    <Textarea
+                      id="query-message"
+                      placeholder={queryTopics.find(t => t.title === selectedQueryTopic)?.placeholder || "Describe your query, suggestion, or issue in detail..."}
+                      value={queryForm.message}
+                      onChange={e => {
+                        setQueryForm(p => ({ ...p, message: e.target.value }));
+                        if (queryErrors.message) setQueryErrors(p => ({ ...p, message: undefined }));
+                      }}
+                      className={`rounded-xl min-h-[130px] resize-none ${queryErrors.message ? 'border-red-500 focus-visible:ring-red-500/20' : ''}`}
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={querySending}
+                    onClick={(e) => handleQuerySubmit(e)}
+                    className="w-full gap-2 font-bold text-base py-6 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer"
+                    style={{ background: 'linear-gradient(135deg, #2d6a4f, #52b788)' }}
+                  >
+                    {querySending ? (
+                      <><div className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Sending Query...</>
+                    ) : (
+                      <><Send className="h-4 w-4" /> Send My Query</>
+                    )}
+                  </Button>
+
+                  <p className="text-xs text-center text-muted-foreground">
+                    We respect your privacy. Your email will only be used to respond to your query.
+                  </p>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       </section>

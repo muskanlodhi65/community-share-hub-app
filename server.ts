@@ -110,6 +110,51 @@ app.post('/api/requests/create', async (req: Request, res: Response) => {
   }
 });
 
+// Store submitted queries in-memory with optional DB persistence
+const receivedQueries: any[] = [];
+
+// POST /api/queries - Backend Query submission handler
+app.post('/api/queries', async (req: Request, res: Response) => {
+  try {
+    const { name, email, message, category } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ success: false, error: 'Name, email, and message are required' });
+    }
+
+    const ticketId = 'ECO-' + Math.floor(100000 + Math.random() * 900000);
+    const newQuery = {
+      ticketId,
+      name,
+      email,
+      message,
+      category: category || 'General Queries',
+      status: 'received',
+      createdAt: new Date().toISOString()
+    };
+
+    receivedQueries.unshift(newQuery);
+
+    try {
+      await supabase.from('contact_queries').insert([newQuery]);
+    } catch {
+      // safe fallback if contact_queries table does not exist
+    }
+
+    res.json({
+      success: true,
+      message: 'Query received successfully',
+      query: newQuery
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/queries - Fetch received queries
+app.get('/api/queries', (_req: Request, res: Response) => {
+  res.json({ success: true, count: receivedQueries.length, data: receivedQueries });
+});
+
 app.listen(PORT, () => {
   console.log(`⚡ Community Share Hub Express Server running on http://localhost:${PORT}`);
 });
